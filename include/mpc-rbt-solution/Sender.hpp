@@ -18,8 +18,8 @@ public:
     config(senderConfig),
     timer_period(config.sendingPeriodMillis)
   {
-	socket=std::make_unique<Socket>(localPort);
-	callback =[this]() { this->sendMessage();
+    socket = std::make_unique<Socket>(localPort);
+    callback = [this]() { this->onDataTimerTick(); };
   }
 
   void run();
