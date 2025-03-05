@@ -6,40 +6,38 @@
 
 namespace Receiver
 {
-class Node : public Socket::UDP
-{
-public:
-  explicit Node(const Utils::Config::Receiver & receiverConfig)
-  : Socket::UDP(receiverConfig.localPort), config(receiverConfig)
-  {
-    socket = std::make_unique<Socket>(localPort);
-    callback = [this](const Socket::IPFrame & frame) { this->onDataReceived(frame); };
-  }
+    class Node : public Socket::UDP
+    {
+    public:
+        explicit Node(const Utils::Config::Receiver & receiverConfig)
+            : Socket::UDP(receiverConfig.LocalPort), config(receiverConfig)
+        {
+            create();
+            configure();
+            bind();
+            callback = std::bind(&Receiver::Node::onDataReceived, this, std::placeholders::_1);
+        }
 
-  void run();
+        void run();
 
-private:
-  void onDataReceived(const Socket::IPFrame & frame);
+    private:
+        void onDataReceived(const Socket::IPFrame & frame);
 
-  Utils::Message data{};
+        Utils::Message data{};
+        Utils::Config::Receiver config;
+        std::function<void(const Socket::IPFrame &)> callback;
+        rclcpp::Logger logger{rclcpp::get_logger("receiver")};
 
-  Utils::Config::Receiver config;
-  std::function<void(const Socket::IPFrame &)> callback;
-  rclcpp::Logger logger{rclcpp::get_logger("receiver")};
+        friend class TestMock;
+    };
 
-  friend class TestMock;
-};
-}  // namespace Receiver
+    class TestMock : public Node
+    {
+    public:
+        explicit TestMock(const Utils::Config::Receiver & receiverConfig) : Receiver::Node(receiverConfig) {}
 
-namespace Receiver
-{
-class TestMock : public Node
-{
-public:
-  TestMock(const Utils::Config::Receiver & receiverConfig) : Receiver::Node(receiverConfig) {}
+        [[nodiscard]] const Utils::Message & getData() const { return data; }
+    };
+}
 
-  [[nodiscard]] const Utils::Message & getData() const { return data; }
-};
-}  // namespace Receiver
-
-#endif  // COMMUNICATION_EXAMPLE_RECEIVER_H
+#endif // COMMUNICATION_EXAMPLE_RECEIVER_H
