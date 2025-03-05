@@ -12,7 +12,8 @@ public:
   explicit Node(const Utils::Config::Receiver & receiverConfig)
   : Socket::UDP(receiverConfig.localPort), config(receiverConfig)
   {
-    UNIMPLEMENTED(__PRETTY_FUNCTION__);
+	socket = std::make_unique<Socket>(localPort);
+	callback=[this]() { this->processMessage();
   }
 
   void run();

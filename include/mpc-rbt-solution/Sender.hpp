@@ -18,7 +18,8 @@ public:
     config(senderConfig),
     timer_period(config.sendingPeriodMillis)
   {
-    UNIMPLEMENTED(__PRETTY_FUNCTION__);
+	socket=std::make_unique<Socket>(localPort);
+	callback =[this]() { this->sendMessage();
   }
 
   void run();
