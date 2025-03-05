@@ -18,7 +18,17 @@ void Receiver::Node::run()
 
 void Receiver::Node::onDataReceived(const Socket::IPFrame & frame)
 {
-  UNIMPLEMENTED(__PRETTY_FUNCTION__);
+  try {
+    // Deserializace přijatých dat
+    json j = json::parse(frame.data);
+    data = Utils::jsonToMessage(j);
 
-  RCLCPP_INFO(logger, "\n\tstamp: %ld", data.timestamp);
+    // Logování přijatých dat
+    RCLCPP_INFO(logger, "Received data:");
+    RCLCPP_INFO(logger, "\t x: %.2f\n\t y: %.2f\n\t z: %.2f\n\t timestamp: %ld", data.x, data.y, data.z, data.timestamp);
+
+  } catch (const std::exception & e) {
+    RCLCPP_ERROR(logger, "Failed to parse received data: %s", e.what());
+  }
 }
+
