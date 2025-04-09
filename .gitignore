@@ -1,8 +1,7 @@
-.vscode/
-.idea/
-
-cmake-build-*
-vscode-build/
 build/
 install/
 log/
+*.pyc
+__pycache__/
+*.swp
+*.rviz
